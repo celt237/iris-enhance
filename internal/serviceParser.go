@@ -7,7 +7,6 @@ import (
 )
 
 type ServiceParser struct {
-	//file        *ast.File
 	genDecl *go_annotation.StructDesc
 }
 
@@ -15,18 +14,16 @@ func NewServiceParser(genDecl *go_annotation.StructDesc) *ServiceParser {
 	return &ServiceParser{genDecl: genDecl}
 }
 
+func (s *ServiceParser) wrapperError(err error) error {
+	return fmt.Errorf("service:[%s] %s", s.genDecl.Name, err.Error())
+}
+
 func (s *ServiceParser) Parse(resultType string, errorCode string, imports []string) (sDesc *ServiceDesc, err error) {
 	importDict := make(map[string]*go_annotation.ImportDesc)
 	importDict["context"] = &go_annotation.ImportDesc{Name: "context", HasAlias: false, Path: "context"}
-	importDict["fmt"] = &go_annotation.ImportDesc{Name: "fmt", HasAlias: false, Path: "fmt"}
+	//importDict["fmt"] = &go_annotation.ImportDesc{Name: "fmt", HasAlias: false, Path: "fmt"}
 	importDict["iris"] = &go_annotation.ImportDesc{Name: "iris", HasAlias: true, Path: "github.com/kataras/iris/v12"}
 	importDict["iris-enhance"] = &go_annotation.ImportDesc{Name: "iris-enhance", HasAlias: false, Path: "git.zhugefang.com/gocore/iris-enhance"}
-	//for _, imp := range imports {
-	//	name := imp[strings.LastIndex(imp, "/")+1:]
-	//	if _, ok := importDict[name]; !ok {
-	//		importDict[name] = &go_annotation.ImportDesc{Name: name, HasAlias: false, Path: imp}
-	//	}
-	//}
 	if !strings.HasSuffix(s.genDecl.Name, "Service") || len(s.genDecl.Annotations) == 0 {
 		return nil, nil
 	}
@@ -66,7 +63,7 @@ func (s *ServiceParser) Parse(resultType string, errorCode string, imports []str
 
 	err = s.parseReplyType(resultType, sDesc)
 	if err != nil {
-		return nil, err
+		return nil, s.wrapperError(err)
 	}
 
 	for _, imp := range importDict {
@@ -78,7 +75,7 @@ func (s *ServiceParser) Parse(resultType string, errorCode string, imports []str
 		methodParser := NewMethodParser(methodData)
 		methodDesc, err := methodParser.Parse(sDesc.ReplyType, errorCode)
 		if err != nil {
-			return nil, err
+			return nil, s.wrapperError(err)
 		}
 		sDesc.Methods = append(sDesc.Methods, methodDesc)
 	}
@@ -90,14 +87,14 @@ func (s *ServiceParser) parseReplyType(resultType string, sDesc *ServiceDesc) (e
 	if _, ok := s.genDecl.Annotations[ZReplyTypeTag]; ok {
 		annotation := s.genDecl.Annotations[ZReplyTypeTag]
 		if len(annotation.Attributes) > 1 {
-			return fmt.Errorf(ZReplyTypeTag + " format is incorrect")
+			return s.wrapperError(fmt.Errorf(ZReplyTypeTag + " format is incorrect"))
 		}
 		attribute := annotation.Attributes[0]
 		if len(attribute) >= 1 {
 			sDesc.ReplyType = attribute["0"]
 			return nil
 		} else {
-			return fmt.Errorf(ZReplyTypeTag + " format is incorrect")
+			return s.wrapperError(fmt.Errorf(ZReplyTypeTag + " format is incorrect"))
 		}
 	}
 	sDesc.ReplyType = resultType

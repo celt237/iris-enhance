@@ -14,20 +14,51 @@ type ErrorWithCode interface {
 }
 
 type ApiHandler interface {
+	// WrapContext 从iris.Context中获取context.Context
 	WrapContext(ctx iris.Context) context.Context
+
+	// Success 成功返回
+	// ctx iris.Context 上下文
+	// produceType string 返回类型
+	// data interface{} 返回数据
 	Success(ctx iris.Context, produceType string, data interface{})
-	CodeError(ctx iris.Context, produceType string, data interface{}, code int, message string)
-	Error(ctx iris.Context, produceType string, data interface{}, message string)
+
+	// CodeError 失败返回
+	// ctx iris.Context 上下文
+	// produceType string 返回类型
+	// data interface{} 返回数据
+	// code int 错误码
+	// err error 错误
+	CodeError(ctx iris.Context, produceType string, data interface{}, code int, err error)
+
+	// Error 失败返回
+	// ctx iris.Context 上下文
+	// produceType string 返回类型
+	// data interface{} 返回数据
+	// err error 错误
+	Error(ctx iris.Context, produceType string, data interface{}, err error)
+
+	// HandleCustomerAnnotation 处理自定义注解
+	// ctx iris.Context 上下文
+	// annotation string 注解名
+	// opt ...string 参数
 	HandleCustomerAnnotation(ctx iris.Context, annotation string, opt ...string) error
 }
 
+// GetParamFromContext 从iris.Context中获取参数
+// ctx iris.Context 上下文
+// paramName string 参数名
+// dataType string 数据类型
+// paramType string 参数类型
+// ptr bool 是否指针
+// required bool 是否必须
 func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType string, paramType string, ptr bool, required bool) (value T, err error) {
 	value, err = getDefaultValue[T]()
 	var v1 interface{}
-	if paramType == "path" {
+	if paramType == internal.ParamTypePath {
 		str := ctx.Params().Get(paramName)
 		if str == "" {
-			err = fmt.Errorf("参数%s不能为空", paramName)
+			err = fmt.Errorf("param %s can not be empty", paramName)
 			return
 		}
 		v1, err = internal.TypeConvert(str, dataType, ptr)
@@ -37,10 +68,10 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		if v1 != nil {
 			value = v1.(T)
 		}
-	} else if paramType == "query" {
+	} else if paramType == internal.ParamTypeQuery {
 		str := ctx.URLParam(paramName)
 		if str == "" && required {
-			err = fmt.Errorf("参数%s不能为空", paramName)
+			err = fmt.Errorf("param %s can not be empty", paramName)
 			return
 		}
 		v1, err = internal.TypeConvert(str, dataType, ptr)
@@ -50,10 +81,10 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		if v1 != nil {
 			value = v1.(T)
 		}
-	} else if paramType == "header" {
+	} else if paramType == internal.ParamTypeHeader {
 		str := ctx.GetHeader(paramName)
 		if str == "" && required {
-			err = fmt.Errorf("参数%s不能为空", paramName)
+			err = fmt.Errorf("param %s can not be empty", paramName)
 			return
 		}
 		v1, err = internal.TypeConvert(str, dataType, ptr)
@@ -63,7 +94,7 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		if v1 != nil {
 			value = v1.(T)
 		}
-	} else if paramType == "body" {
+	} else if paramType == internal.ParamTypeBody {
 		err = ctx.ReadJSON(value)
 		if err != nil {
 			return

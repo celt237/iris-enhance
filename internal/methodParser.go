@@ -31,31 +31,35 @@ func (m *MethodParser) Parse(resultType string, errorCode string) (method *Metho
 	}
 	err = m.parseResult(method) // 解析方法返回值
 	if err != nil {
-		return nil, err
+		return nil, m.wrapperError(err)
 	}
 	method.ApiResultDataType = method.Result.RealDataType
 	for _, annotation := range method.Annotations {
 		commentParser := GetMethodCommentParser(annotation)
 		err = commentParser.Parse(annotation, method)
 		if err != nil {
-			return nil, err
+			return nil, m.wrapperError(err)
 		}
 	}
 
 	// 校验是否有缺失的字段
 	if method.Path == "" || method.Method == "" {
-		return nil, fmt.Errorf("no router tag found")
+		return nil, m.wrapperError(fmt.Errorf("no router tag found"))
 	}
 	if method.ApiResultType == "" {
-		return nil, fmt.Errorf("no reply type found")
+		return nil, m.wrapperError(fmt.Errorf("no reply type found"))
 	}
 	paramParser := NewParamParser(m.funcDecl)
 	method.Params, err = paramParser.Parse() // 解析方法参数
 	if err != nil {
+		err = m.wrapperError(fmt.Errorf("parse params error: %s", err.Error()))
 		return nil, err
 	}
-	//m.fillParamFormat(method) // 设置方法参数格式
 	return method, err
+}
+
+func (m *MethodParser) wrapperError(err error) error {
+	return fmt.Errorf("method:[%s] %s", m.funcDecl.Name, err.Error())
 }
 
 func (m *MethodParser) parseResult(method *MethodDesc) (err error) {
@@ -63,7 +67,7 @@ func (m *MethodParser) parseResult(method *MethodDesc) (err error) {
 		//fmt.Println("Results:")
 		// 判断只能有2个返回值
 		if len(m.funcDecl.Results) != 2 {
-			err = fmt.Errorf("results length is not 2")
+			err = m.wrapperError(fmt.Errorf("results length is not 2"))
 			return err
 		}
 		for _, result := range m.funcDecl.Results {
@@ -73,20 +77,5 @@ func (m *MethodParser) parseResult(method *MethodDesc) (err error) {
 			}
 		}
 	}
-	return fmt.Errorf("no result type found")
+	return m.wrapperError(fmt.Errorf("no result type found"))
 }
-
-//func (m *MethodParser) getAtComments(funcDecl *go_annotation.MethodDesc) (comments []string, err error) {
-//	comments = make([]string, 0)
-//	if funcDecl.Doc != nil {
-//		//fmt.Println("Comments:")
-//		for _, com := range funcDecl.Doc.List {
-//			atIndex := strings.Index(com.Text, "@")
-//			if atIndex != -1 {
-//				commentText := com.Text[atIndex:]
-//				comments = append(comments, commentText)
-//			}
-//		}
-//	}
-//	return comments, err
-//}

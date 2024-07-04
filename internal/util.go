@@ -29,21 +29,13 @@ func LoadConfig(configFile string) (config *Config, err error) {
 	}
 }
 
-func ParseServiceDesc(fileDescs []*go_annotation.FileDesc, imports []string, resultType string, errorCode string) ([]*ServiceDesc, error) {
-	//importDict := make(map[string]*go_annotation.ImportDesc)
-	//importDict["context"] = &go_annotation.ImportDesc{Name: "context", HasAlias: false, Path: "context"}
-	//importDict["fmt"] = &go_annotation.ImportDesc{Name: "fmt", HasAlias: false, Path: "fmt"}
-	//importDict["iris"] = &go_annotation.ImportDesc{Name: "iris", HasAlias: true, Path: "github.com/kataras/iris/v12"}
-	//importDict["iris-enhance"] = &go_annotation.ImportDesc{Name: "iris", HasAlias: false, Path: "git.zhugefang.com/gocore/iris-enhance"}
-	//for _, imp := range imports {
-	//	name := imp[strings.LastIndex(imp, "/")+1:]
-	//	if _, ok := importDict[name]; !ok {
-	//		importDict[name] = &go_annotation.ImportDesc{Name: "_", HasAlias: true, Path: imp}
-	//	}
-	//}
+func ParseServiceDesc(fileDescList []*go_annotation.FileDesc, imports []string, resultType string, errorCode string) ([]*ServiceDesc, error) {
 	serviceDescList := make([]*ServiceDesc, 0)
-	for _, fileDesc := range fileDescs {
+	for _, fileDesc := range fileDescList {
 		for _, structData := range fileDesc.Structs {
+			if structData == nil {
+				continue
+			}
 			if !strings.HasSuffix(structData.Name, "Service") || len(structData.Annotations) == 0 {
 				continue
 			}
@@ -55,7 +47,9 @@ func ParseServiceDesc(fileDescs []*go_annotation.FileDesc, imports []string, res
 			if err != nil {
 				return nil, err
 			}
-			serviceDescList = append(serviceDescList, serviceDesc)
+			if serviceDesc != nil {
+				serviceDescList = append(serviceDescList, serviceDesc)
+			}
 		}
 	}
 	return serviceDescList, nil
