@@ -14,7 +14,7 @@ import (
 
 {{$svrType := .Name}}
 {{$empty := "emptypb.Empty"}}
-// 这里定义 handler interface
+// declare handler interface
 type {{$svrType}}HTTPHandler interface {
 {{- range .Methods}}
     {{.Name}}(ctx context.Context{{- range .Params}}, {{.Name | firstToLower}} {{.DataType}}{{- end}}) ({{.Result.DataType}}, error)
@@ -22,15 +22,15 @@ type {{$svrType}}HTTPHandler interface {
 }
 
 // Register{{$svrType}}HTTPHandler define http router handle by iris. 
-// 注册路由 handler
+// regist route handler
 func Register{{$svrType}}HTTPHandler(group iris.Party, api iris_enhance.ApiHandler, srv {{$svrType}}HTTPHandler) {
     {{- range .Methods}}
     group.{{.Method | capitalize}}("{{.Path}}", _{{$svrType}}_{{.Name}}_HTTP_Handler(api, srv))
     {{- end}}
 }
 
-// 定义 handler
-// 遍历之前解析到所有 rpc 方法信息
+// declare handler
+// Traverse all previously parsed rpc method information
 
 {{range $outerIndex, $outerElement := .Methods}}
 // @Summary {{.Summary}}{{if ne .Description ""}}

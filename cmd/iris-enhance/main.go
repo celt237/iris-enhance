@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	ga "github.com/celt237/go-annotation"
+	go_annotation "github.com/celt237/go-annotation"
 	"github.com/celt237/iris-enhance/internal"
 	"os"
 	"path/filepath"
@@ -104,7 +104,7 @@ func main() {
 		fmt.Println("No service files found")
 		return
 	}
-	fileDescList, err := ga.GetFilesDescList(config.ServicePath)
+	fileDescList, err := go_annotation.GetFilesDescList(config.ServicePath, go_annotation.AnnotationModeArray)
 	if err != nil {
 		fmt.Println("Failed to get file desc list:", err)
 		return

@@ -52,8 +52,20 @@ func readFileFromEmbedFS(fs embed.FS, filename string) (string, error) {
 	return string(bytes), nil
 }
 
-// SwagDocHandler is a handler for swagger documentation
-func SwagDocHandler(config Config) iris.Handler {
+// RegisterSwaggerDoc registers swagger documentation
+func RegisterSwaggerDoc(app *iris.Application, path string) {
+	path = strings.TrimPrefix(path, "/")
+	path = strings.TrimSuffix(path, "/")
+	path = strings.TrimSpace(path)
+	if path == "" {
+		path = "doc"
+	}
+	path = "/" + path
+	app.Get(path+"/{any:path}", swagDocHandler(Config{RelativePath: path}))
+}
+
+// swagDocHandler is a handler for swagger documentation
+func swagDocHandler(config Config) iris.Handler {
 	docJsonPath := config.RelativePath + "/docJson"
 	servicesPath := config.RelativePath + "/static/service"
 	docPath := config.RelativePath + "/index"

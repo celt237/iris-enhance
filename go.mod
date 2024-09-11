@@ -1,9 +1,9 @@
 module github.com/celt237/iris-enhance
 
-go 1.21
+go 1.18
 
 require (
-	github.com/celt237/go-annotation v0.0.4
+	github.com/celt237/go-annotation v0.0.5
 	github.com/kataras/iris/v12 v12.2.1
 	gopkg.in/yaml.v2 v2.4.0
 )
