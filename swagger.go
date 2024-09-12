@@ -72,7 +72,7 @@ func RegisterSwaggerDoc(app *iris.Application, jsonPath string, route string) {
 		log.Println("no swagger.json found in " + jsonPath)
 		return
 	}
-	app.Get(route+"/{any:route}", swagDocHandler(Config{RelativePath: route, DocJson: docJson}))
+	app.Get(route+"/{any:path}", swagDocHandler(Config{RelativePath: route, DocJson: docJson}))
 }
 
 // swagDocHandler is a handler for swagger documentation
