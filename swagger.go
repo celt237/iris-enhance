@@ -13,13 +13,13 @@ import (
 
 var (
 	//go:embed static
-	front   embed.FS
-	docJson []byte
-	s       service
+	front embed.FS
+	s     service
 )
 
 type Config struct {
 	RelativePath string
+	DocJson      []byte
 }
 
 type service struct {
@@ -27,14 +27,6 @@ type service struct {
 	Url            string `json:"url"`
 	SwaggerVersion string `json:"swaggerVersion"`
 	Location       string `json:"location"`
-}
-
-func init() {
-	var err error
-	docJson, err = os.ReadFile("./docs/swagger.json")
-	if err != nil {
-		log.Println("no swagger.json found in ./docs")
-	}
 }
 
 func readFileFromEmbedFS(fs embed.FS, filename string) (string, error) {
@@ -53,15 +45,34 @@ func readFileFromEmbedFS(fs embed.FS, filename string) (string, error) {
 }
 
 // RegisterSwaggerDoc registers swagger documentation
-func RegisterSwaggerDoc(app *iris.Application, path string) {
-	path = strings.TrimPrefix(path, "/")
-	path = strings.TrimSuffix(path, "/")
-	path = strings.TrimSpace(path)
-	if path == "" {
-		path = "doc"
+//
+// app : the iris application
+//
+// jsonPath: the path to the swagger json file (e.g. ./docs/swagger.json)
+//
+// route: the path to register the swagger documentation (e.g. /doc)
+//
+// return: the path of the swagger documentation
+func RegisterSwaggerDoc(app *iris.Application, jsonPath string, route string) {
+	route = strings.TrimPrefix(route, "/")
+	route = strings.TrimSuffix(route, "/")
+	route = strings.TrimSpace(route)
+	if route == "" {
+		log.Println("route is empty")
+		return
 	}
-	path = "/" + path
-	app.Get(path+"/{any:path}", swagDocHandler(Config{RelativePath: path}))
+	route = "/" + route
+
+	if jsonPath == "" {
+		log.Println(jsonPath + "jsonPath is empty")
+		return
+	}
+	docJson, err := os.ReadFile(jsonPath)
+	if err != nil {
+		log.Println("no swagger.json found in " + jsonPath)
+		return
+	}
+	app.Get(route+"/{any:route}", swagDocHandler(Config{RelativePath: route, DocJson: docJson}))
 }
 
 // swagDocHandler is a handler for swagger documentation
@@ -103,7 +114,7 @@ func swagDocHandler(config Config) iris.Handler {
 			ctx.HTML(doc)
 		case docJsonPath:
 			ctx.ContentType("application/json")
-			ctx.Write(docJson)
+			ctx.Write(config.DocJson)
 		default:
 			filePath := strings.TrimPrefix(ctx.Request().RequestURI, config.RelativePath)
 			filePath = strings.TrimPrefix(filePath, "/")
