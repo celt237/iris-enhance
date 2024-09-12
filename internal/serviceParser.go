@@ -23,7 +23,7 @@ func (s *ServiceParser) Parse(resultType string, errorCode string, imports []str
 	importDict["context"] = &go_annotation.ImportDesc{Name: "context", HasAlias: false, Path: "context"}
 	//importDict["fmt"] = &go_annotation.ImportDesc{Name: "fmt", HasAlias: false, Path: "fmt"}
 	importDict["iris"] = &go_annotation.ImportDesc{Name: "iris", HasAlias: true, Path: "github.com/kataras/iris/v12"}
-	importDict["iris-enhance"] = &go_annotation.ImportDesc{Name: "iris-enhance", HasAlias: false, Path: "git.zhugefang.com/gocore/iris-enhance"}
+	importDict["iris-enhance"] = &go_annotation.ImportDesc{Name: "iris-enhance", HasAlias: false, Path: "github.com/celt237/iris-enhance"}
 	if !strings.HasSuffix(s.genDecl.Name, "Service") || len(s.genDecl.Annotations) == 0 {
 		return nil, nil
 	}
