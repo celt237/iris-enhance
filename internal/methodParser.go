@@ -67,8 +67,7 @@ func (m *MethodParser) parseResult(method *MethodDesc) (err error) {
 		//fmt.Println("Results:")
 		// 判断只能有2个返回值
 		if len(m.funcDecl.Results) != 2 {
-			err = m.wrapperError(fmt.Errorf("results length is not 2"))
-			return err
+			return fmt.Errorf("results length is not 2")
 		}
 		for _, result := range m.funcDecl.Results {
 			if result.DataType != "error" {
@@ -77,5 +76,5 @@ func (m *MethodParser) parseResult(method *MethodDesc) (err error) {
 			}
 		}
 	}
-	return m.wrapperError(fmt.Errorf("no result type found"))
+	return fmt.Errorf("no result type found")
 }

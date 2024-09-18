@@ -142,6 +142,7 @@ func TypeConvertInt8Ptr(strValue string) (value *int8, err error) {
 	if err != nil {
 		return
 	}
+	value = new(int8)
 	*value = int8(v2)
 	return
 }
@@ -163,6 +164,7 @@ func TypeConvertInt16Ptr(strValue string) (value *int16, err error) {
 	if err != nil {
 		return
 	}
+	value = new(int16)
 	*value = int16(v2)
 	return
 }
@@ -184,6 +186,7 @@ func TypeConvertInt32Ptr(strValue string) (value *int32, err error) {
 	if err != nil {
 		return
 	}
+	value = new(int32)
 	*value = int32(v2)
 	return
 }
@@ -205,6 +208,7 @@ func TypeConvertInt64Ptr(strValue string) (value *int64, err error) {
 	if err != nil {
 		return
 	}
+	value = new(int64)
 	*value = v2
 	return
 }
@@ -226,6 +230,7 @@ func TypeConvertFloat32Ptr(strValue string) (value *float32, err error) {
 	if err != nil {
 		return
 	}
+	value = new(float32)
 	*value = float32(v2)
 	return
 }
@@ -247,6 +252,7 @@ func TypeConvertFloat64Ptr(strValue string) (value *float64, err error) {
 	if err != nil {
 		return
 	}
+	value = new(float64)
 	*value = v2
 	return
 }
@@ -271,6 +277,7 @@ func TypeConvertBoolPtr(strValue string) (value *bool, err error) {
 	if err != nil {
 		return
 	}
+	value = new(bool)
 	*value = v2
 	return
 }
@@ -316,6 +323,7 @@ func TypeConvertUInt8Ptr(strValue string) (value *uint8, err error) {
 	if err != nil {
 		return
 	}
+	value = new(uint8)
 	*value = uint8(v2)
 	return
 }
@@ -337,6 +345,7 @@ func TypeConvertUInt16Ptr(strValue string) (value *uint16, err error) {
 	if err != nil {
 		return
 	}
+	value = new(uint16)
 	*value = uint16(v2)
 	return
 }
@@ -358,6 +367,7 @@ func TypeConvertUInt32Ptr(strValue string) (value *uint32, err error) {
 	if err != nil {
 		return
 	}
+	value = new(uint32)
 	*value = uint32(v2)
 	return
 }
@@ -379,6 +389,7 @@ func TypeConvertUInt64Ptr(strValue string) (value *uint64, err error) {
 	if err != nil {
 		return
 	}
+	value = new(uint64)
 	*value = uint64(v2)
 	return
 }
