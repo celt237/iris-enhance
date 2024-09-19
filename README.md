@@ -1,3 +1,6 @@
+[![Release](https://github.com/celt237/iris-enhance/actions/workflows/go.yml/badge.svg)](https://github.com/celt237/iris-enhance/actions/workflows/go.yml)
+[![Coverage Status](https://coveralls.io/repos/github/celt237/iris-enhance/badge.svg?branch=master)](https://coveralls.io/repos/github/celt237/iris-enhance/badge.svg?branch=master)
+
 # iris-enhance
 ## iris增强（包括swagger文档生成、自定义注解等）
 
