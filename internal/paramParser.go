@@ -95,8 +95,8 @@ var typeMap = map[string][]string{
 	"string":  {"string"},
 	"number":  {"float32", "float64"},
 	"boolean": {"bool"},
-	//"array":   {"[]"},
-	//"object":  {"struct", "map"},
+	"array":   {"[]"},
+	"object":  {"struct", "map"},
 }
 
 func (p *ParamParser) matchDataType(paramType string, goDataType string, commentDataType string) bool {
@@ -125,6 +125,28 @@ func (p *ParamParser) matchDataType(paramType string, goDataType string, comment
 			}
 		} else {
 			if commentDataType == goDataType {
+				return true
+			} else {
+				return false
+			}
+		}
+	case ParamFormData:
+		if strings.HasPrefix(goDataType, "[]") {
+			if commentDataType == DataTypeArray {
+				return true
+			} else {
+				return false
+			}
+		} else if strings.HasPrefix(goDataType, "map") {
+			if commentDataType == DataTypeObject {
+				return true
+			} else {
+				return false
+			}
+		} else {
+			if commentDataType == "file" {
+				return true
+			} else if commentDataType == goDataType {
 				return true
 			} else {
 				return false

@@ -5,12 +5,35 @@ import (
 	"fmt"
 	"github.com/celt237/iris-enhance/internal"
 	"github.com/kataras/iris/v12"
+	"mime/multipart"
 	"reflect"
 )
 
 type ErrorWithCode interface {
 	error
 	Code() int
+}
+
+type FileInfo interface {
+	GetFileHeader() *multipart.FileHeader
+	GetFile() multipart.File
+}
+
+type FileInfoImpl struct {
+	fileHeader *multipart.FileHeader
+	file       multipart.File
+}
+
+func (f *FileInfoImpl) GetFileHeader() *multipart.FileHeader {
+	return f.fileHeader
+}
+
+func (f *FileInfoImpl) GetFile() multipart.File {
+	return f.GetFile()
+}
+
+func NewFileInfo(file multipart.File, fileHeader *multipart.FileHeader) FileInfo {
+	return &FileInfoImpl{file: file, fileHeader: fileHeader}
 }
 
 type ApiHandler interface {
@@ -99,6 +122,21 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		if err != nil {
 			return
 		}
+	} else if paramType == internal.ParamFormData {
+		file, fileHeader, err := ctx.FormFile(paramName)
+		if err != nil {
+			return
+		}
+		// 判断value的类型是FileInfo接口
+		tType := reflect.TypeOf(value)
+		if tType.Implements(reflect.TypeOf((*FileInfo)(nil)).Elem()) {
+			fileInfo := NewFileInfo(file, fileHeader)
+			value = fileInfo.(T)
+		} else {
+			err = fmt.Errorf("param %s type is not FileInfo", paramName)
+			return
+		}
+
 	}
 	return
 }

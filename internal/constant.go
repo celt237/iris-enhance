@@ -6,6 +6,7 @@ const (
 	ParamTypeHeader string = "header"
 	ParamTypeCookie string = "cookie"
 	ParamTypeBody   string = "body"
+	ParamFormData   string = "formData"
 )
 
 //type DataTypeEnum string
