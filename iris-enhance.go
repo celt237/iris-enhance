@@ -82,11 +82,11 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		str := ctx.Params().Get(paramName)
 		if str == "" {
 			err = fmt.Errorf("param %s can not be empty", paramName)
-			return
+			return value, err
 		}
 		v1, err = internal.TypeConvert(str, dataType, ptr)
 		if err != nil {
-			return
+			return value, err
 		}
 		if v1 != nil {
 			value = v1.(T)
@@ -95,11 +95,11 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		str := ctx.URLParam(paramName)
 		if str == "" && required {
 			err = fmt.Errorf("param %s can not be empty", paramName)
-			return
+			return value, err
 		}
 		v1, err = internal.TypeConvert(str, dataType, ptr)
 		if err != nil {
-			return
+			return value, err
 		}
 		if v1 != nil {
 			value = v1.(T)
@@ -108,11 +108,11 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 		str := ctx.GetHeader(paramName)
 		if str == "" && required {
 			err = fmt.Errorf("param %s can not be empty", paramName)
-			return
+			return value, err
 		}
 		v1, err = internal.TypeConvert(str, dataType, ptr)
 		if err != nil {
-			return
+			return value, err
 		}
 		if v1 != nil {
 			value = v1.(T)
@@ -120,12 +120,14 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 	} else if paramType == internal.ParamTypeBody {
 		err = ctx.ReadJSON(value)
 		if err != nil {
-			return
+			return value, err
 		}
 	} else if paramType == internal.ParamFormData {
-		file, fileHeader, err := ctx.FormFile(paramName)
+		var file multipart.File
+		var fileHeader *multipart.FileHeader
+		file, fileHeader, err = ctx.FormFile(paramName)
 		if err != nil {
-			return
+			return value, err
 		}
 		// 判断value的类型是FileInfo接口
 		tType := reflect.TypeOf(value)
@@ -134,11 +136,11 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 			value = fileInfo.(T)
 		} else {
 			err = fmt.Errorf("param %s type is not FileInfo", paramName)
-			return
+			return value, err
 		}
 
 	}
-	return
+	return value, err
 }
 
 func getDefaultValue[T any]() (result T, err error) {
