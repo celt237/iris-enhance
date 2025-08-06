@@ -123,20 +123,32 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 			return value, err
 		}
 	} else if paramType == internal.ParamFormData {
-		var file multipart.File
-		var fileHeader *multipart.FileHeader
-		file, fileHeader, err = ctx.FormFile(paramName)
-		if err != nil {
-			return value, err
-		}
+
 		// 判断value的类型是FileInfo接口
 		tType := reflect.TypeOf(value)
 		if tType.Implements(reflect.TypeOf((*FileInfo)(nil)).Elem()) {
+			var file multipart.File
+			var fileHeader *multipart.FileHeader
+			file, fileHeader, err = ctx.FormFile(paramName)
+			if err != nil {
+				return value, err
+			}
 			fileInfo := NewFileInfo(file, fileHeader)
 			value = fileInfo.(T)
 		} else {
-			err = fmt.Errorf("param %s type is not FileInfo", paramName)
-			return value, err
+			// 处理普通表单字段
+			str := ctx.FormValue(paramName)
+			if str == "" && required {
+				err = fmt.Errorf("param %s can not be empty", paramName)
+				return value, err
+			}
+			v1, err = internal.TypeConvert(str, dataType, ptr)
+			if err != nil {
+				return value, err
+			}
+			if v1 != nil {
+				value = v1.(T)
+			}
 		}
 
 	}
