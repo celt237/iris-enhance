@@ -93,6 +93,52 @@ func TestGetParamFromContext(t *testing.T) {
 			required:  true,
 			wantErr:   false,
 		},
+		{
+			name: "测试表单数组字段",
+			setup: func() iris.Context {
+				app := iris.New()
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				writer.WriteField("tags", "tag1")
+				writer.WriteField("tags", "tag2")
+				writer.WriteField("tags", "tag3")
+				writer.Close()
+
+				req := httptest.NewRequest("POST", "/form", body)
+				req.Header.Set("Content-Type", writer.FormDataContentType())
+				ctx := app.ContextPool.Acquire(httptest.NewRecorder(), req)
+				return ctx
+			},
+			paramName: "tags",
+			dataType:  "[]string",
+			paramType: internal.ParamFormData,
+			ptr:       false,
+			required:  true,
+			wantErr:   false,
+		},
+		{
+			name: "测试表单整数数组字段",
+			setup: func() iris.Context {
+				app := iris.New()
+				body := &bytes.Buffer{}
+				writer := multipart.NewWriter(body)
+				writer.WriteField("numbers", "1")
+				writer.WriteField("numbers", "2")
+				writer.WriteField("numbers", "3")
+				writer.Close()
+
+				req := httptest.NewRequest("POST", "/form", body)
+				req.Header.Set("Content-Type", writer.FormDataContentType())
+				ctx := app.ContextPool.Acquire(httptest.NewRecorder(), req)
+				return ctx
+			},
+			paramName: "numbers",
+			dataType:  "[]int",
+			paramType: internal.ParamFormData,
+			ptr:       false,
+			required:  true,
+			wantErr:   false,
+		},
 	}
 
 	// 执行测试用例
@@ -127,6 +173,22 @@ func TestGetParamFromContext(t *testing.T) {
 					}
 					if err == nil && value == nil {
 						t.Error("GetParamFromContext() returned nil FileInfo")
+					}
+				} else if tt.paramName == "tags" {
+					value, err := GetParamFromContext[[]string](ctx, tt.paramName, tt.dataType, tt.paramType, tt.ptr, tt.required)
+					if (err != nil) != tt.wantErr {
+						t.Errorf("GetParamFromContext() error = %v, wantErr %v", err, tt.wantErr)
+					}
+					if err == nil && len(value) != 3 {
+						t.Errorf("GetParamFromContext() = %v, want length 3", value)
+					}
+				} else if tt.paramName == "numbers" {
+					value, err := GetParamFromContext[[]int](ctx, tt.paramName, tt.dataType, tt.paramType, tt.ptr, tt.required)
+					if (err != nil) != tt.wantErr {
+						t.Errorf("GetParamFromContext() error = %v, wantErr %v", err, tt.wantErr)
+					}
+					if err == nil && (len(value) != 3 || value[0] != 1 || value[1] != 2 || value[2] != 3) {
+						t.Errorf("GetParamFromContext() = %v, want [1 2 3]", value)
 					}
 				} else {
 					value, err := GetParamFromContext[int](ctx, tt.paramName, tt.dataType, tt.paramType, tt.ptr, tt.required)

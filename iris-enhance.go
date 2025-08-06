@@ -7,6 +7,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"mime/multipart"
 	"reflect"
+	"strings"
 )
 
 type ErrorWithCode interface {
@@ -137,17 +138,35 @@ func GetParamFromContext[T any](ctx iris.Context, paramName string, dataType str
 			value = fileInfo.(T)
 		} else {
 			// 处理普通表单字段
-			str := ctx.FormValue(paramName)
-			if str == "" && required {
-				err = fmt.Errorf("param %s can not be empty", paramName)
-				return value, err
-			}
-			v1, err = internal.TypeConvert(str, dataType, ptr)
-			if err != nil {
-				return value, err
-			}
-			if v1 != nil {
-				value = v1.(T)
+			if strings.HasPrefix(dataType, "[]") {
+				// 处理数组类型，获取所有同名参数
+				values := ctx.FormValues()[paramName]
+				if len(values) == 0 && required {
+					err = fmt.Errorf("param %s can not be empty", paramName)
+					return value, err
+				}
+				elementType := dataType[2:]
+				// 将字符串数组转换为目标类型
+				v1, err = internal.TypeConvertArray(values, elementType, ptr)
+				if err != nil {
+					return value, err
+				}
+				if v1 != nil {
+					value = v1.(T)
+				}
+			} else {
+				str := ctx.FormValue(paramName)
+				if str == "" && required {
+					err = fmt.Errorf("param %s can not be empty", paramName)
+					return value, err
+				}
+				v1, err = internal.TypeConvert(str, dataType, ptr)
+				if err != nil {
+					return value, err
+				}
+				if v1 != nil {
+					value = v1.(T)
+				}
 			}
 		}
 

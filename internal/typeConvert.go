@@ -5,6 +5,165 @@ import (
 	"strconv"
 )
 
+func TypeConvertArray(strValues []string, elementType string, ptr bool) (value interface{}, err error) {
+	if len(strValues) == 0 {
+		return nil, nil
+	}
+
+	// 去掉elementType前的*
+	if len(elementType) > 1 && elementType[0] == '*' {
+		ptr = true
+		elementType = elementType[1:]
+	}
+
+	switch elementType {
+	case "string":
+		if ptr {
+			result := make([]*string, len(strValues))
+			for i, str := range strValues {
+				result[i] = &str
+			}
+			return result, nil
+		} else {
+			return strValues, nil
+		}
+	case "int":
+		if ptr {
+			result := make([]*int, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertIntPtr(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		} else {
+			result := make([]int, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertInt(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		}
+	case "int32":
+		if ptr {
+			result := make([]*int32, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertInt32Ptr(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		} else {
+			result := make([]int32, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertInt32(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		}
+	case "int64":
+		if ptr {
+			result := make([]*int64, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertInt64Ptr(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		} else {
+			result := make([]int64, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertInt64(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		}
+	case "float32":
+		if ptr {
+			result := make([]*float32, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertFloat32Ptr(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		} else {
+			result := make([]float32, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertFloat32(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		}
+	case "float64":
+		if ptr {
+			result := make([]*float64, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertFloat64Ptr(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		} else {
+			result := make([]float64, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertFloat64(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		}
+	case "bool":
+		if ptr {
+			result := make([]*bool, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertBoolPtr(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		} else {
+			result := make([]bool, len(strValues))
+			for i, str := range strValues {
+				v, err := TypeConvertBool(str)
+				if err != nil {
+					return nil, err
+				}
+				result[i] = v
+			}
+			return result, nil
+		}
+	default:
+		return nil, fmt.Errorf("不支持的数组元素类型: %s", elementType)
+	}
+}
+
 func TypeConvert(strValue string, dataType string, ptr bool) (value interface{}, err error) {
 	// 去掉dataType前的*
 	if len(dataType) > 1 && dataType[0] == '*' {
