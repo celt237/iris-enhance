@@ -29,7 +29,7 @@ func LoadConfig(configFile string) (config *Config, err error) {
 	}
 }
 
-func ParseServiceDesc(fileDescList []*go_annotation.FileDesc, imports []string, resultType string, errorCode string) ([]*ServiceDesc, error) {
+func ParseServiceDesc(fileDescList []*go_annotation.FileDesc, imports []string, resultType string, errorCode string, basePath string) ([]*ServiceDesc, error) {
 	serviceDescList := make([]*ServiceDesc, 0)
 	for _, fileDesc := range fileDescList {
 		for _, structData := range fileDesc.Structs {
@@ -47,6 +47,7 @@ func ParseServiceDesc(fileDescList []*go_annotation.FileDesc, imports []string, 
 			if err != nil {
 				return nil, err
 			}
+			serviceDesc.BasePath = basePath
 			if serviceDesc != nil {
 				serviceDescList = append(serviceDescList, serviceDesc)
 			}

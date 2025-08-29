@@ -16,6 +16,9 @@ type Config struct {
 	// 需要额外导入的包
 	Imports []string `yaml:"imports"`
 
+	// 接口访问的根路径
+	BasePath string `yaml:"basePath"`
+
 	// 自定义属性，必须以x开头
 	CustomAnnotations []string `yaml:"customAnnotations"`
 }

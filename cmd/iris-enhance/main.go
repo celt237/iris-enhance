@@ -32,6 +32,8 @@ func loadConfig() (config *internal.Config, err error) {
 	// 需要额外导入的包 多个以,分隔
 	imports := flag.String("imports", "", "import packages")
 
+	basePath := flag.String("basePath", "", "The base path")
+
 	// 自定义注解 多个以,分隔
 	customAnnotations := flag.String("customAnnotations", "", "custom annotations")
 
@@ -85,6 +87,11 @@ func loadConfig() (config *internal.Config, err error) {
 	if customAnnotations != nil && *customAnnotations != "" {
 		config.CustomAnnotations = strings.Split(*customAnnotations, ",")
 	}
+
+	if basePath != nil && *basePath != "" {
+		config.BasePath = *basePath
+	}
+
 	return config, nil
 }
 
@@ -110,7 +117,7 @@ func main() {
 		return
 	}
 
-	serviceDescList, err := internal.ParseServiceDesc(fileDescList, config.Imports, config.ResultType, strconv.Itoa(config.ErrorCode))
+	serviceDescList, err := internal.ParseServiceDesc(fileDescList, config.Imports, config.ResultType, strconv.Itoa(config.ErrorCode), config.BasePath)
 	if err != nil {
 		fmt.Println("Failed to parse service desc:", err)
 		return

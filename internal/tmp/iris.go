@@ -31,7 +31,7 @@ func Register{{$svrType}}HTTPHandler(group iris.Party, api iris_enhance.ApiHandl
 
 // declare handler
 // Traverse all previously parsed rpc method information
-
+{{$basePath := .BasePath}}
 {{range $outerIndex, $outerElement := .Methods}}
 // @Summary {{.Summary}}{{if ne .Description ""}}
 // @Description {{.Description}}{{end}}{{if ne .Tags ""}}
@@ -41,7 +41,7 @@ func Register{{$svrType}}HTTPHandler(group iris.Party, api iris_enhance.ApiHandl
 // @Param {{.Name}} {{.ParamType}} {{.ParamDataType}} {{.Required}} {{.Desc}}{{end}}
 // @Success 200 {object} {{.ApiResultType}}[{{.ApiResultDataType}}]  "请求成功返回的结果"
 // @Failure {{.ErrorCode}} {object} {{.ApiResultType}}[{{.ApiResultDataType}}] "请求失败返回的结果"
-// @Router {{.Path}} [{{.Method}}]
+// @Router {{$basePath}}{{.Path}} [{{.Method}}]
 func _{{$svrType}}_{{.Name}}_HTTP_Handler(api iris_enhance.ApiHandler, srv {{$svrType}}HTTPHandler) func(ctx iris.Context) {
     return func(ctx iris.Context) {
         wrapperCtx := api.WrapContext(ctx)

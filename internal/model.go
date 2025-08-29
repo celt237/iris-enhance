@@ -21,6 +21,7 @@ type ServiceDesc struct {
 	Methods     []*MethodDesc // 方法
 	Description string        // 描述
 	ReplyType   string        // 接口返回值类型
+	BasePath    string        // 接口根路径
 }
 
 type MethodDesc struct {
